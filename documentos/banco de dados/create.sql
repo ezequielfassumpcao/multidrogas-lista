@@ -13,19 +13,22 @@ CREATE TABLE produto (
                          id_produto INT NOT NULL AUTO_INCREMENT,
                          nome VARCHAR (250) NOT NULL,
                          descricao VARCHAR (250) NOT NULL,
+                         imagem VARCHAR (250)  NULL DEFAULT NULL,
                          tipo VARCHAR (20) DEFAULT NULL,
                          status INT NOT NULL DEFAULT 0,
                          data_cadastro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                          PRIMARY KEY (id_produto)
 );
+
 CREATE TABLE lista_produto (
-                               id_produto_usuario INT NOT NULL AUTO_INCREMENT,
-                               id_produto INT NOT NULL,
-                               id_usuario INT NOT NULL,
-                               data_cadastro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                               PRIMARY KEY (id_produto_usuario),
-                               FOREIGN KEY (id_produto) REFERENCES produto(id_produto),
-                               FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
+                        id_produto_usuario INT NOT NULL AUTO_INCREMENT,
+                        id_produto INT NOT NULL,
+                        id_usuario INT NOT NULL,
+                        status BOOLEAN NOT NULL DEFAULT false,
+                        data_cadastro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        PRIMARY KEY (id_produto_usuario),
+                        FOREIGN KEY (id_produto) REFERENCES produto(id_produto),
+                        FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
 );
 
 
@@ -41,12 +44,12 @@ CREATE TABLE token(
 );
 
 CREATE TABLE esqueceusenha (
-                               id_esqueceusenha INT NOT NULL AUTO_INCREMENT,
-                               id_usuario INT NOT NULL,
-                               ip VARCHAR(150) NOT NULL,
-                               data_solicitacao timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                               data_expira timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                               token TEXT NOT NULL,
-                               PRIMARY KEY (id_esqueceusenha),
-                               FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
+                     id_esqueceusenha INT NOT NULL AUTO_INCREMENT,
+                     id_usuario INT NOT NULL,
+                     ip VARCHAR(150) NOT NULL,
+                     data_solicitacao timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                     data_expira timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                     token TEXT NOT NULL,
+                     PRIMARY KEY (id_esqueceusenha),
+                     FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
 );
