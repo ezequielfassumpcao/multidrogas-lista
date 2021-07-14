@@ -5,6 +5,7 @@ namespace Controller\Api;
 
 // Importaçoes
 use DuugWork\Helper\Input;
+use Helper\File;
 use Helper\Seguranca;
 
 /**
@@ -172,6 +173,92 @@ class Usuario extends \DuugWork\Controller
                         "status" => $post["status"],
                         "senha"  => $post["senha"]
                     ];
+
+                    // Verificar se informou a imagem de perfil
+                    if($_FILES["perfil"]["size"] > 0)
+                    {
+                        // Instancia o objeto de upload
+                        $objHelperUpload = new File();
+
+                        // Seta as configurações do arquivo
+                        $objHelperUpload->setStorange("./storage/usuario/perfil/");
+                        $objHelperUpload->setFile($_FILES["perfil"]);
+                        $objHelperUpload->setMaxSize(1 * MB);
+                        $objHelperUpload->setExtensaoValida(["png","jpg","jpeg","gif"]);
+
+                        // Validade o tamanho do arquivo
+                        if($objHelperUpload->validaSize())
+                        {
+                            // Valida a extensão
+                            if($objHelperUpload->validaExtensao())
+                            {
+                                // Realiza o upload do arquivo
+                                $perfil = $objHelperUpload->upload(); // Nome arquivo ou False
+
+                                // Verifica se o upload foi realizado
+                                if(!empty($perfil))
+                                {
+                                    // Adiciona imagem ao array de inserção
+                                    $salva["perfil"] = $perfil;
+                                }
+                                else
+                                {
+                                    $this->api(["mensagem" => "Ocorreu um erro ao realizar o upload da imagem de perfil."]);
+                                } // Error >> Erro ao realizar upload
+                            }
+                            else
+                            {
+                                $this->api(["mensagem" => "A extensão do arquivo informado não é aceita."]);
+                            } // Error >> Extensão não permitida
+                        }
+                        else
+                        {
+                            $this->api(["mensagem" => "O tamanho máximo da imagem deve ser 1MB"]);
+                        } // Error >> Tamanho maior que 1MB
+                    }
+
+                    if ($_FILES["capa"] ["size"] > 0)
+                    {
+                        // Instancia o objeto de upload
+                        $objHelperUpload = new File();
+
+                        // Seta as configurações do arquivo
+                        $objHelperUpload->setStorange("./storage/usuario/capa/");
+                        $objHelperUpload->setFile($_FILES["capa"]);
+                        $objHelperUpload->setMaxSize(1 * MB);
+                        $objHelperUpload->setExtensaoValida(["png","jpg","jpeg","gif"]);
+
+                        // Validade o tamanho do arquivo
+                        if($objHelperUpload->validaSize())
+                        {
+                            // Valida a extensão
+                            if($objHelperUpload->validaExtensao())
+                            {
+                                // Realiza o upload do arquivo
+                                $capa = $objHelperUpload->upload(); // Nome arquivo ou False
+
+                                // Verifica se o upload foi realizado
+                                if(!empty($capa))
+                                {
+                                    // Adiciona imagem ao array de inserção
+                                    $salva["capa"] = $capa;
+                                }
+                                else
+                                {
+                                    $this->api(["mensagem" => "Ocorreu um erro ao realizar o upload da imagem de perfil."]);
+                                } // Error >> Erro ao realizar upload
+                            }
+                            else
+                            {
+                                $this->api(["mensagem" => "A extensão do arquivo informado não é aceita."]);
+                            } // Error >> Extensão não permitida
+                        }
+                        else
+                        {
+                            $this->api(["mensagem" => "O tamanho máximo da imagem deve ser 1MB"]);
+                        } // Error >> Tamanho maior que 1MB
+                    }
+
                     // Inseri o usuario
                     $obj = $this->objModelUsuario
                          ->insert($salva);
