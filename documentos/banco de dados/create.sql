@@ -1,5 +1,7 @@
 CREATE TABLE usuario (
                          id_usuario INT NOT NULL AUTO_INCREMENT,
+                         perfil text NULL DEFAULT NULL,
+                         capa text NULL DEFAULT NULL,
                          nome VARCHAR (250) NOT NULL,
                          email VARCHAR (250) NOT NULL UNIQUE,
                          nivel ENUM('admin','cliente') DEFAULT 'cliente',
