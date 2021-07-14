@@ -218,7 +218,7 @@ class Usuario extends \DuugWork\Controller
         {
             // Msg
             $dados = ["mensagem" => "Usuário sem permissão"];
-        } // error >> Dados Obrigatorios não informado.
+        } // error >> Usuário sem permissão.
 
         // Retorno
         $this->api($dados);
