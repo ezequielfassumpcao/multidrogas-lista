@@ -319,7 +319,7 @@ class Usuario extends \DuugWork\Controller
      * @param $id [Id usuario]
      * -----------------------------------------------------------------
      * @url api/usuario/update/[ID]
-     * @method PUT
+     * @method POST
      */
     public function update($id)
     {
@@ -328,7 +328,9 @@ class Usuario extends \DuugWork\Controller
         $usuario = null;
         $obj = null;
         $objAlterado = null;
-        $put = null;
+        $post = null;
+        $update = [];
+
 
         // Seguranca
         $usuario = $this->objHelperSeguranca->security();
@@ -338,7 +340,7 @@ class Usuario extends \DuugWork\Controller
         {
             // Busca os dados put
             $objInput = new Input();
-            $put = $objInput->put();
+            $post = $objInput->post();
 
             // Busca o usuário a ser alterado
             $obj = $this->objModelUsuario
@@ -349,22 +351,22 @@ class Usuario extends \DuugWork\Controller
             if(!empty($obj))
             {
                 // Verifica se vai alterar a senha
-                if(!empty($put["senha"]))
+                if(!empty($post["senha"]))
                 {
                     // Altera a senha
-                    $put["senha"] = md5($put["senha"]);
+                    $post["senha"] = md5($post["senha"]);
                 }
                 else
                 {
-                    unset($put["senha"]);
+                    unset($post["senha"]);
                 }
 
 
-                if (!empty($put["email"]))
+                if (!empty($post["email"]))
                 {
                     // Verifica o emaill
                     $verificaEmail = $this->objModelUsuario
-                        ->get(["email" => $put["email"], "id_usuario !=" => $id])
+                        ->get(["email" => $post["email"], "id_usuario !=" => $id])
                         ->rowCount();
 
                     // Verifica se o email não é valido
@@ -374,12 +376,143 @@ class Usuario extends \DuugWork\Controller
                     }
                 }
 
+                // Verifica se vai alterar o perfil em si
+                if (!empty($_FILES["perfil"]) && $_FILES["perfil"]["size"] > 0)
+                {
+                    // Pega o arquivo
+                    $perfil = $_FILES["perfil"];
+
+                    // Pega a extensão
+                    $extensao = pathinfo($perfil["name"]);
+                    $extensao = (!empty($extensao["extension"]) ? $extensao["extension"] : "indefinido");
+
+                    // Pega o peso do arquivo
+                    $peso =  $perfil["size"];
+
+                    // Seta o caminho do arquivo
+                    $caminho = "./storage/usuario/perfil/" . $extensao . "/";
+
+                    // Verifica se o caminho informado não existe
+                    if(!is_dir($caminho))
+                    {
+                        // Cria a pasta do caminho caso não existir
+                        mkdir($caminho, 0777, true);
+                    }
+
+                    // Instancia o objeto
+                    $objFile = new \Helper\File();
+
+                    // Seta as configurações
+                    $objFile->setStorange($caminho);
+                    $objFile->setMaxSize(1 * MB);
+                    $objFile->setFile($perfil);
+
+                    // Verifica se o tamanho está no limite
+                    if($objFile->validaSize())
+                    {
+                        // Realiza o upload
+                        $perfil = $objFile->upload();
+
+                        // Verifica se deu certo o upload
+                        if(!empty($perfil))
+                        {
+                            // Pega o arquivo
+                            $update["perfil"] = $perfil;
+                            $update["tipo"] = $extensao;
+                            $update["peso"] = $peso;
+
+                            if(!empty($obj->perfil) && file_exists("./storage/usuario/perfil/".$obj->perfil))
+                            {
+                                // Remove o arquivo antigo
+                                unlink("./storage/usuario/perfil/".$obj->perfil);
+                            }
+                        }
+                        else
+                        {
+                            // Msg
+                            $this->api(["mensagem" => "Ocorreu um erro ao realizar o upload do novo arquivo."]);
+                        } // Error >> Ocorreu um erro ao realizar o upload do novo arquivo.
+                    }
+                    else
+                    {
+                        // Msg
+                        $this->api(["mensagem" => "O arquivo não pode ser maior que 10MB."]);
+                    } // Error >> O arquivo não pode ser maior que 10MB.
+
+                } // End > Verifica se vai
+                // alterar o perfil
+
+                // Verifica se vai alterar o capa em si
+                if (!empty($_FILES["capa"]) && $_FILES["capa"]["size"] > 0)
+                {
+                    // Pega o arquivo
+                    $capa = $_FILES["capa"];
+
+                    // Pega a extensão
+                    $extensao = pathinfo($capa["name"]);
+                    $extensao = (!empty($extensao["extension"]) ? $extensao["extension"] : "indefinido");
+
+                    // Pega o peso do arquivo
+                    $peso =  $capa["size"];
+
+                    // Seta o caminho do arquivo
+                    $caminho = "./storage/usuario/capa/" . $extensao . "/";
+
+                    // Verifica se o caminho informado não existe
+                    if(!is_dir($caminho))
+                    {
+                        // Cria a pasta do caminho caso não existir
+                        mkdir($caminho, 0777, true);
+                    }
+
+                    // Instancia o objeto
+                    $objFile = new \Helper\File();
+
+                    // Seta as configurações
+                    $objFile->setStorange($caminho);
+                    $objFile->setMaxSize(1 * MB);
+                    $objFile->setFile($capa);
+
+                    // Verifica se o tamanho está no limite
+                    if($objFile->validaSize())
+                    {
+                        // Realiza o upload
+                        $capa = $objFile->upload();
+
+                        // Verifica se deu certo o upload
+                        if(!empty($capa))
+                        {
+                            // Pega o arquivo
+                            $update["capa"] = $capa;
+                            $update["tipo"] = $extensao;
+                            $update["peso"] = $peso;
+
+                            if(!empty($obj->capa) && file_exists("./storage/usuario/capa/".$obj->capa))
+                            {
+                                // Remove o arquivo antigo
+                                unlink("./storage/usuario/capa/".$obj->capa);
+                            }
+                        }
+                        else
+                        {
+                            // Msg
+                            $this->api(["mensagem" => "Ocorreu um erro ao realizar o upload do novo arquivo."]);
+                        } // Error >> Ocorreu um erro ao realizar o upload do novo arquivo.
+                    }
+                    else
+                    {
+                        // Msg
+                        $this->api(["mensagem" => "O arquivo não pode ser maior que 10MB."]);
+                    } // Error >> O arquivo não pode ser maior que 10MB.
+
+                } // End > Verifica se vai
+                // alterar o arquivo
 
                 // Verifica se vai alterar algo
-                if(!empty($put))
+                if(!empty($post))
                 {
                     // Altera
-                    if($this->objModelUsuario->update($put,["id_usuario" => $id]) != false)
+                    if($this->objModelUsuario->update($post,["id_usuario" => $id]) != false)
                     {
                         // Busca os dados alterados
                         $objAlterado = $this->objModelUsuario
