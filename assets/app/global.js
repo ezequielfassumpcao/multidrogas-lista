@@ -23,7 +23,7 @@ $(".maskCartao").mask("# ###0", {reverse: true});
  * Método responsável por realizar uma requisição,
  * retornando uma promesa.
  * -------------------------------------------------
- * @author igorcacerez
+ * @author ezequielfassumpcao
  * -------------------------------------------------
  * @param tipo
  * @param url
